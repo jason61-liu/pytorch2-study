@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Author:  shiyiliu
 # @Date:  2025/6/2  10:00
-# @File:  one.py
+# @File:  resnet.py
 # @Project:  pytorchdemo
 # @Software:  PyCharm
 import torch
