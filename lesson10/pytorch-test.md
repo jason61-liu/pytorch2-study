@@ -138,7 +138,7 @@ import torch
 import torch.nn as nn
 
 class FeedForWard(nn.Module):
-    def __init__(self, embdding_dim=312, scale=4):
+    def __init__(self, embdding_dim=6, scale=2):
         super().__init__()
         # 第一个线性层，将嵌入维度扩展到 embdding_dim * scale
         self.linear1 = nn.Linear(embdding_dim, embdding_dim * scale)
@@ -171,16 +171,53 @@ class FeedForWard(nn.Module):
 feed_forward = FeedForWard()
 
 # 创建一个示例输入张量
-input_tensor = torch.randn(16, 50, 312)  # batch_size=16, seq_len=50, embdding_dim=312
+input_tensor = torch.randn(2, 5, 6)  # batch_size=16, seq_len=50, embdding_dim=312
 
 # 通过前向传播
 output_tensor = feed_forward(input_tensor)
 
+print(f"Input:",{input_tensor})
+
 # 打印输出张量的形状
 print(f"Output shape: {output_tensor.shape}")
+
+print(f"Output:",{output_tensor})
 ```
 
-    Output shape: torch.Size([16, 50, 312])
+    Input: {tensor([[[-2.1094e+00,  6.7046e-01,  4.9378e-01,  1.1551e+00, -1.1531e+00,
+               5.6232e-03],
+             [-1.0016e-01, -4.3876e-01, -1.1935e+00, -8.6195e-02, -6.6292e-01,
+              -1.7501e-01],
+             [-2.0671e-01,  9.9128e-01, -3.0657e-01, -1.5186e+00,  1.9335e-01,
+               1.1144e-01],
+             [ 7.8260e-01, -7.1679e-04,  1.7415e-03,  3.4333e-01, -8.5852e-01,
+               1.8945e+00],
+             [-3.1637e-01,  3.9556e-01,  1.8627e+00, -1.0185e+00, -1.4184e-02,
+              -2.7679e+00]],
+    
+            [[-5.0889e-01, -1.4054e+00, -5.4395e-01, -1.4111e+00, -4.6753e-01,
+              -4.6111e-01],
+             [-2.3208e-01,  1.3249e+00,  1.0036e-01, -8.8446e-01,  3.5724e-02,
+               3.4012e-01],
+             [-2.0815e+00,  8.8573e-01, -7.1716e-01, -6.9065e-01,  4.1308e-01,
+              -1.4215e+00],
+             [ 4.6890e-01, -1.5218e+00,  2.8684e-01, -6.2580e-01, -6.3401e-01,
+               1.4173e+00],
+             [-3.2139e+00, -9.1566e-02,  7.0720e-01, -1.3956e+00, -7.8359e-01,
+               1.7450e-01]]])}
+    Output shape: torch.Size([2, 5, 6])
+    Output: {tensor([[[-0.6670,  1.9086, -0.6670, -0.6670,  0.7596, -0.6670],
+             [-0.6523,  2.0911, -0.6523, -0.4796,  0.3456, -0.6523],
+             [-1.2401,  0.8298, -0.0085, -1.2401,  1.4844,  0.1745],
+             [-0.9040,  1.8825, -0.3649, -0.9040, -0.4227,  0.7131],
+             [-0.0090,  2.0803, -0.7412, -0.7412,  0.1522, -0.7412]],
+    
+            [[-0.2790,  2.2028, -0.6690, -0.3191, -0.2667, -0.6690],
+             [-1.3364,  0.8290,  0.4861, -1.3364,  1.2179,  0.1399],
+             [-0.8307,  0.7498, -0.8307, -0.0902,  1.8326, -0.8307],
+             [-0.6534,  1.9619, -0.6534, -0.6534, -0.6534,  0.6518],
+             [-0.9445,  1.1269, -0.2875, -0.9445,  1.5998, -0.5504]]],
+           grad_fn=<NativeLayerNormBackward0>)}
 
 
 
@@ -1129,3 +1166,233 @@ if __name__ == "__main__":
              [-0.0041, -0.0263, -0.0321,  ..., -0.0042, -0.0205,  0.0023]]],
            grad_fn=<ViewBackward0>)
 
+
+
+```python
+import torch
+import torch.nn as nn
+import torch.optim as optim
+
+# 定义一个简单的模型
+class SimpleModel(nn.Module):
+    def __init__(self):
+        super(SimpleModel, self).__init__()
+        self.fc = nn.Linear(10, 1)
+    
+    def forward(self, x):
+        return self.fc(x)
+
+# 初始化模型和优化器
+model = SimpleModel()
+criterion = nn.MSELoss()
+optimizer = optim.SGD(model.parameters(), lr=0.01)
+
+# 生成一些随机数据
+inputs = torch.randn(5, 10)
+targets = torch.randn(5, 1)
+
+# 训练循环
+num_epochs = 30
+for epoch in range(num_epochs):
+    # 前向传播
+    outputs = model(inputs)
+    loss = criterion(outputs, targets)
+    
+    # 反向传播和优化
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+    
+    # 打印损失
+    if (epoch + 1) % 10 == 0:
+        print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}")
+        
+        # 保存模型和优化器状态到独立文件
+        state = {
+            "net": model.state_dict(),
+            "optimizer": optimizer.state_dict(),
+            "epoch": epoch,
+        }
+        filename = f"./modelpara_epoch_{epoch+1}.pt"
+        torch.save(state, filename)
+
+print("Training complete.")
+
+
+
+
+```
+
+    Epoch [10/30], Loss: 0.7140
+    Epoch [20/30], Loss: 0.4207
+    Epoch [30/30], Loss: 0.2506
+    Training complete.
+
+
+
+```python
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import os  # 导入 os 模块
+
+# 定义一个简单的模型
+class SimpleModel(nn.Module):
+    def __init__(self):
+        super(SimpleModel, self).__init__()
+        self.fc = nn.Linear(10, 1)
+    
+    def forward(self, x):
+        return self.fc(x)
+
+# 初始化模型和优化器
+model = SimpleModel()
+criterion = nn.MSELoss()
+optimizer = optim.SGD(model.parameters(), lr=0.01)
+
+# 加载保存的状态
+checkpoint_path = "./modelpara_epoch_30.pt"  # 替换为你要加载的文件路径
+if os.path.exists(checkpoint_path):  # 使用 os.path.exists 检查文件是否存在
+    checkpoint = torch.load(checkpoint_path)
+    model.load_state_dict(checkpoint["net"])
+    optimizer.load_state_dict(checkpoint["optimizer"])
+    start_epoch = checkpoint["epoch"] + 1  # 继续从下一个 epoch 开始
+    print(f"Resuming training from epoch {start_epoch}")
+else:
+    print(f"No checkpoint found at {checkpoint_path}. Starting from scratch.")
+    start_epoch = 0
+
+# 生成一些随机数据
+inputs = torch.randn(5, 10)
+targets = torch.randn(5, 1)
+
+# 训练循环
+num_epochs = 100
+for epoch in range(start_epoch, num_epochs):
+    # 前向传播
+    outputs = model(inputs)
+    loss = criterion(outputs, targets)
+    
+    # 反向传播和优化
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+    
+    # 打印损失
+    if (epoch + 1) % 10 == 0:
+        print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}")
+        
+        # 保存模型和优化器状态到独立文件
+        state = {
+            "net": model.state_dict(),
+            "optimizer": optimizer.state_dict(),
+            "epoch": epoch,
+        }
+        filename = f"./modelpara_epoch_{epoch+1}.pt"
+        torch.save(state, filename)
+
+print("Training complete.")
+
+
+
+
+
+
+
+
+```
+
+    Resuming training from epoch 30
+    Epoch [40/100], Loss: 1.0576
+    Epoch [50/100], Loss: 0.6254
+    Epoch [60/100], Loss: 0.3982
+    Epoch [70/100], Loss: 0.2698
+    Epoch [80/100], Loss: 0.1933
+    Epoch [90/100], Loss: 0.1454
+    Epoch [100/100], Loss: 0.1140
+    Training complete.
+
+
+
+```python
+import torch
+import torch.nn as nn
+import os  # 导入 os 模块
+
+# 定义一个简单的模型
+class SimpleModel(nn.Module):
+    def __init__(self):
+        super(SimpleModel, self).__init__()
+        self.fc = nn.Linear(10, 1)
+    
+    def forward(self, x):
+        return self.fc(x)
+
+# 初始化模型
+model = SimpleModel()
+
+# 加载保存的状态
+checkpoint_path = "./modelpara_epoch_30.pt"  # 替换为你要加载的文件路径
+if os.path.exists(checkpoint_path):
+    checkpoint = torch.load(checkpoint_path)
+    model.load_state_dict(checkpoint["net"])
+    print(f"Model loaded from {checkpoint_path}.")
+else:
+    print(f"No checkpoint found at {checkpoint_path}. Please provide a valid checkpoint file.")
+    exit()
+
+# 设置模型为评估模式
+model.eval()
+
+# 生成一些随机测试数据
+test_inputs = torch.randn(5, 10)
+test_targets = torch.randn(5, 1)
+
+# 评估模型
+with torch.no_grad():
+    test_outputs = model(test_inputs)
+    criterion = nn.MSELoss()
+    test_loss = criterion(test_outputs, test_targets)
+    print(f"Evaluation Loss: {test_loss.item():.4f}")
+
+# 可选：打印预测输出和真实目标
+print("Test Inputs:\n", test_inputs)
+print("Test Targets:\n", test_targets)
+print("Test Outputs:\n", test_outputs)
+
+
+
+
+```
+
+    Model loaded from ./modelpara_epoch_30.pt.
+    Evaluation Loss: 0.9628
+    Test Inputs:
+     tensor([[-0.3190,  1.0549, -0.9971,  0.1393, -1.7194, -1.4965,  0.3044, -1.9692,
+             -1.1606, -1.3257],
+            [-0.4075,  0.7917, -0.1659, -1.3921,  1.3287, -0.5533, -0.2907,  1.2056,
+              1.7686, -1.0523],
+            [ 0.5301, -0.9104,  0.6442,  0.2471,  1.1308,  0.6712, -1.1137,  0.1793,
+             -0.1000, -0.9598],
+            [-0.4061, -0.5208, -0.3205,  0.4277,  1.2889,  0.4115, -0.3667,  0.0493,
+             -0.0447, -0.2900],
+            [-0.5973, -1.4952,  1.5605,  0.4186, -0.4414, -0.1652,  0.2269,  0.6397,
+              0.4247,  1.4183]])
+    Test Targets:
+     tensor([[-0.5750],
+            [ 0.0378],
+            [ 0.0835],
+            [-2.4932],
+            [-1.1004]])
+    Test Outputs:
+     tensor([[-0.0529],
+            [ 0.4126],
+            [-0.1805],
+            [-0.4286],
+            [-0.8381]])
+
+
+
+```python
+
+```
