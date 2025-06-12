@@ -141,5 +141,24 @@ class Encoder(torch.nn.Module):
 
 
 if __name__ == "__main__":
-    seq = torch.ones(size=(3, 80), dtype=int)
-    Encoder()(seq)
+    # seq = torch.ones(size=(3, 80), dtype=int)
+    # Encoder()(seq)
+    batch_size = 2
+    seq_len = 5
+    vocab_size = 1024
+    embedding_size = 312
+
+    # 创建一个随机的 token 输入张量
+    token_inputs = torch.randint(1, vocab_size, (batch_size, seq_len))
+
+    # 创建编码器实例
+    encoder = Encoder(
+        vocab_size=vocab_size, max_length=seq_len, embedding_size=embedding_size
+    )
+
+    # 应用编码器
+    output = encoder(token_inputs)
+
+    print("Token Inputs Shape:", token_inputs.shape)
+    print("Output Shape:", output.shape)
+    print("Output:\n", output)
