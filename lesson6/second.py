@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Author:  shiyiliu
 # @Date:  2025/6/1  11:10
-# @File:  second.py
+# @File:  get_data.py
 # @Project:  pytorchdemo
 # @Software:  PyCharm
 

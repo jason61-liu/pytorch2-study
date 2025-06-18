@@ -240,7 +240,7 @@ class PoswiseFeedForwardNet(nn.Module):
         """
         residual = inputs
         output = self.fc(inputs)
-        return nn.LayerNorm(d_model).cuda()(
+        return nn.LayerNorm(d_model)(
             output + residual
         )  # [batch_size, seq_len, d_model]
 
@@ -378,14 +378,14 @@ class Decoder(nn.Module):
         dec_outputs = self.tgt_emb(dec_inputs)
         # [batch_size, tgt_len, d_model]
         # 同样地，对decoder_layer进行词向量的生成
-        dec_outputs = self.pos_emb(dec_outputs.transpose(0, 1)).transpose(0, 1).cuda()
+        dec_outputs = self.pos_emb(dec_outputs.transpose(0, 1)).transpose(0, 1)
         # 计算他的位置向量
         # [batch_size, tgt_len, d_model]
 
         dec_self_attn_mask = create_self_mask(dec_inputs, dec_inputs)
         # [batch_size, tgt_len, tgt_len]
 
-        # dec_self_attn_subsequence_mask = create_look_ahead_mask(dec_inputs).cuda()
+        # dec_self_attn_subsequence_mask = create_look_ahead_mask(dec_inputs)
         # [batch_size, tgt_len, tgt_len]
         # 当前时刻我是看不到未来时刻的东西的
 
@@ -419,7 +419,7 @@ class Transformer(nn.Module):
         # self.encoder = Encoder().cuda()
         self.encoder = Encoder().cuda()
         self.decoder = Decoder().cuda()
-        self.projection = nn.Linear(d_model, tgt_vocab_size, bias=False).cuda()
+        self.projection = nn.Linear(d_model, tgt_vocab_size, bias=False)
         # 对decoder的输出转换维度，
         # 从隐藏层维数->英语单词词典大小（选取概率最大的那一个，作为我们的预测结果）
 
