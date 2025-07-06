@@ -9,6 +9,7 @@
 import torch as t
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.optim as optim
 
 class Net(nn.Module):
     def __init__(self):
@@ -32,13 +33,25 @@ class Net(nn.Module):
 
 if __name__=='__main__':
     net=Net()
-    print(net)
-    for name,parameters in net.named_parameters():
-        print(name,':',parameters.size())
+    # print(net)
+    # for name,parameters in net.named_parameters():
+    #     print(name,':',parameters.size())
 
     input = t.randn(1,1,32,32)
     out=net(input)
-    print(out.size())
-    print(out)
-    net.zero_grad()
-    out.backward(t.ones(1,10))
+    target=t.arange(0,10).view(1,10).float()
+    criterion=nn.MSELoss()
+    loss=criterion(out,target)
+    # print(loss)
+
+    # net.zero_grad()
+    # print("反向传播之前 conv1.bias梯度：")
+    # print(net.conv1.bias.grad)
+    # loss.backward()
+    # print('反向传播之后 conv1.bias的梯度')
+    # print(net.conv1.bias.grad)
+    optimizer=optim.SGD(net.parameters(),lr=0.01)
+    optimizer.zero_grad()
+
+    loss.backward()
+    optimizer.step()
